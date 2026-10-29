@@ -126,13 +126,25 @@ export async function startWhatsApp() {
           connectionStatus = 'error';
           lastError = 'This session was opened somewhere else. Close the other session first.';
         } else {
-          connectionStatus = 'disconnected';
-          lastError = lastError ?? `Connection closed (${code ?? 'unknown'}: ${reason})`;
+          // 428/408/515 are routine: the QR expired, the socket went idle, or
+          // WhatsApp asked for a restart. Reconnect quietly and issue a new QR
+          // instead of showing the user a scary error.
+          const routine =
+            code === DisconnectReason.connectionClosed ||
+            code === DisconnectReason.connectionLost ||
+            code === DisconnectReason.timedOut ||
+            code === DisconnectReason.restartRequired;
+
+          connectionStatus = routine ? 'connecting' : 'error';
+          if (!routine) {
+            lastError = `Connection closed (${code ?? 'unknown'}: ${reason})`;
+          }
+
           if (!reconnectTimer) {
             reconnectTimer = setTimeout(() => {
               reconnectTimer = null;
               startWhatsApp().catch((e) => console.error('reconnect failed', e));
-            }, 2000);
+            }, routine ? 1000 : 2000);
           }
         }
       }
