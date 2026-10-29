@@ -1,4 +1,5 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
+import type { ConnectionState, WAMessage, MessageUpsertType } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import QRCode from 'qrcode';
 import path from 'path';
@@ -33,7 +34,7 @@ export async function startWhatsApp() {
 
   sock.ev.on('creds.update', saveCreds);
 
-  sock.ev.on('connection.update', async (update: any) => {
+  sock.ev.on('connection.update', async (update: Partial<ConnectionState>) => {
     const { connection, lastDisconnect, qr } = update;
     if (qr) {
       lastQr = qr;
@@ -63,7 +64,7 @@ export async function startWhatsApp() {
     }
   });
 
-  sock.ev.on('messages.upsert', async ({ messages, type }: any) => {
+  sock.ev.on('messages.upsert', async ({ messages, type }: { messages: WAMessage[]; type: MessageUpsertType }) => {
     if (type !== 'notify') return;
     for (const msg of messages) {
       if (msg.key.fromMe) continue;
