@@ -17,6 +17,14 @@ const DEFAULT_ENTRIES: KnowledgeEntry[] = [
     enabled: true,
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'default-studio-pro',
+    title: 'About Studio Pro',
+    content:
+      'Studio Pro is a web design studio based in Kota Kinabalu, Sabah, Malaysia. We specialise in clean, modern design paired with smart SEO - handling everything from wireframe to launch, all in-house. We work with clients across Malaysia and Singapore. Our core services include UX wireframing, web design & development, and SEO optimisation, plus ongoing care plans to keep your site fast, secure and visible on Google.',
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export async function readKnowledgeEntries(): Promise<KnowledgeEntry[]> {
@@ -27,13 +35,35 @@ export async function readKnowledgeEntries(): Promise<KnowledgeEntry[]> {
     });
     return DEFAULT_ENTRIES;
   }
-  if (!row.value) return [];
-  try {
-    const parsed = JSON.parse(row.value);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+  if (!row.value) {
+    await prisma.setting.update({
+      where: { key: 'knowledgeBase' },
+      data: { value: JSON.stringify(DEFAULT_ENTRIES) },
+    });
+    return DEFAULT_ENTRIES;
   }
+  let parsed: KnowledgeEntry[] = [];
+  try {
+    const v = JSON.parse(row.value);
+    parsed = Array.isArray(v) ? v : [];
+  } catch {
+    parsed = [];
+  }
+  // Ensure any new default entries are present (idempotent seed for upgrades).
+  let changed = false;
+  for (const def of DEFAULT_ENTRIES) {
+    if (!parsed.some((e) => e.id === def.id)) {
+      parsed.push(def);
+      changed = true;
+    }
+  }
+  if (changed) {
+    await prisma.setting.update({
+      where: { key: 'knowledgeBase' },
+      data: { value: JSON.stringify(parsed) },
+    });
+  }
+  return parsed;
 }
 
 export async function writeKnowledgeEntries(entries: KnowledgeEntry[]) {
