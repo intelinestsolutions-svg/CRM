@@ -55,7 +55,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
-            WACRM connects your WhatsApp number, replies to customers automatically, and puts a
+            Studio Pro connects your WhatsApp number, replies to customers automatically, and puts a
             human in the loop exactly when it matters.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">

@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WACRM — WhatsApp CRM by Studio Pro",
-  description: "AI-powered WhatsApp CRM for sales and support teams.",
+  title: "Studio Pro — WhatsApp",
+  description: "AI-powered WhatsApp assistant by Studio Pro.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

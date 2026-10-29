@@ -83,7 +83,7 @@ export async function startWhatsApp() {
       auth: state,
       logger,
       printQRInTerminal: false,
-      browser: ['WACRM-Custom', 'Chrome', '1.0.0'],
+      browser: ['Studio Pro - WhatsApp', 'Chrome', '1.0.0'],
     });
 
     sock.ev.on('creds.update', saveCreds);

@@ -31,7 +31,7 @@ export function AppNav() {
           <span className="hidden leading-tight sm:flex sm:flex-col">
             <span className="text-[0.95rem]">Studio Pro</span>
             <span className="text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
-              WhatsApp CRM
+              WhatsApp
             </span>
           </span>
         </Link>
