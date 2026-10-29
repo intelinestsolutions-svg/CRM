@@ -10,7 +10,16 @@ export async function POST(req: Request) {
     include: { contact: true },
   });
   if (!conv) return NextResponse.json({ error: 'not found' }, { status: 404 });
-  await sendMessage(conv.contact.waId, text);
+
+  try {
+    await sendMessage(conv.contact.waId, text);
+  } catch (e) {
+    // Includes the broadcast guard: only one-to-one chats are allowed.
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : String(e) },
+      { status: 400 },
+    );
+  }
   await prisma.message.create({
     data: {
       conversationId: conv.id,

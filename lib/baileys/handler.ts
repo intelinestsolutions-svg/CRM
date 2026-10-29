@@ -1,4 +1,15 @@
 import { prisma } from '@/lib/prisma';
+import { isDirectChatJid, toDirectJid } from './guard';
+
+/**
+ * The only path through which this app sends WhatsApp messages.
+ * It refuses anything that is not a single-person chat, so we can never
+ * broadcast, post to a group/channel, or update status.
+ */
+async function sendDirectText(sock: any, jid: string, text: string) {
+  const target = toDirectJid(jid);
+  await sock.sendMessage(target, { text });
+}
 
 async function askAgent(message: string, history: any[]) {
   try {
@@ -35,6 +46,9 @@ async function askAgent(message: string, history: any[]) {
 }
 
 export async function handleIncomingMessage(sock: any, from: string, body: string, msg: any) {
+  // Never reply to groups, channels, status, or broadcast lists.
+  if (!isDirectChatJid(from)) return;
+
   const waId = from.replace('@s.whatsapp.net', '');
 
   let contact = await prisma.contact.findFirst({ where: { waId } });
@@ -83,7 +97,7 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
     const autoReplyFirst = s.autoReplyFirstMessage !== 'false';
     if (msgCount === 1 && autoReplyFirst && s.welcomeMessage) {
       const welcome = s.welcomeMessage;
-      await sock.sendMessage(from, { text: welcome });
+      await sendDirectText(sock, from, welcome);
       await prisma.message.create({
         data: {
           conversationId: conv.id,
@@ -120,7 +134,7 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
       reply = `Terima kasih atas mesej anda: "${body}". Staf kami akan segera membantu anda!`;
     }
     if (reply) {
-      await sock.sendMessage(from, { text: reply });
+      await sendDirectText(sock, from, reply);
       await prisma.message.create({
         data: {
           conversationId: conv.id,
@@ -141,9 +155,12 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
 }
 
 export async function sendMessage(to: string, text: string) {
+  const body = (text ?? '').trim();
+  if (!body) throw new Error('Message text is required.');
+
   const { getSocket } = await import('./connection');
   const sock = getSocket();
   if (!sock) throw new Error('Not connected');
-  const jid = to.includes('@') ? to : `${to}@s.whatsapp.net`;
-  await sock.sendMessage(jid, { text });
+
+  await sendDirectText(sock, to, body);
 }

@@ -4,6 +4,7 @@ import pino from 'pino';
 import QRCode from 'qrcode';
 import path from 'path';
 import fs from 'fs';
+import { isDirectChatJid } from './guard';
 
 const logger = pino({ level: process.env.WHATSAPP_LOG_LEVEL || 'silent' });
 const AUTH_DIR = process.env.WHATSAPP_AUTH_DIR || path.join(process.cwd(), 'auth');
@@ -162,7 +163,8 @@ export async function startWhatsApp() {
       for (const msg of messages) {
         if (msg.key.fromMe) continue;
         const from = msg.key.remoteJid;
-        if (!from || from.includes('@g.us')) continue;
+        // One-to-one chats only: ignore groups, channels, status, broadcasts.
+        if (!isDirectChatJid(from)) continue;
         const body = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
         if (!body) continue;
         try {
