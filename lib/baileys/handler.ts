@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { isDirectChatJid, toDirectJid } from './guard';
+import { waDebug } from './debug';
 
 /**
  * The only path through which this app sends WhatsApp messages.
@@ -97,7 +98,13 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
     const autoReplyFirst = s.autoReplyFirstMessage !== 'false';
     if (msgCount === 1 && autoReplyFirst && s.welcomeMessage) {
       const welcome = s.welcomeMessage;
-      await sendDirectText(sock, from, welcome);
+      try {
+        await sendDirectText(sock, from, welcome);
+        waDebug.lastReplyAt = new Date().toISOString();
+      } catch (e) {
+        waDebug.lastReplyError = e instanceof Error ? e.message : String(e);
+        throw e;
+      }
       await prisma.message.create({
         data: {
           conversationId: conv.id,
@@ -134,7 +141,13 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
       reply = `Terima kasih atas mesej anda: "${body}". Staf kami akan segera membantu anda!`;
     }
     if (reply) {
-      await sendDirectText(sock, from, reply);
+      try {
+        await sendDirectText(sock, from, reply);
+        waDebug.lastReplyAt = new Date().toISOString();
+      } catch (e) {
+        waDebug.lastReplyError = e instanceof Error ? e.message : String(e);
+        throw e;
+      }
       await prisma.message.create({
         data: {
           conversationId: conv.id,
@@ -162,5 +175,12 @@ export async function sendMessage(to: string, text: string) {
   const sock = getSocket();
   if (!sock) throw new Error('Not connected');
 
-  await sendDirectText(sock, to, body);
+  try {
+    await sendDirectText(sock, to, body);
+    waDebug.lastReplyAt = new Date().toISOString();
+    waDebug.lastSendError = null;
+  } catch (e) {
+    waDebug.lastSendError = e instanceof Error ? e.message : String(e);
+    throw e;
+  }
 }

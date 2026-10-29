@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import fs from 'fs';
 import { isDirectChatJid } from './guard';
+import { waDebug } from './debug';
 
 const logger = pino({ level: process.env.WHATSAPP_LOG_LEVEL || 'silent' });
 const AUTH_DIR = process.env.WHATSAPP_AUTH_DIR || path.join(process.cwd(), 'auth');
@@ -159,18 +160,35 @@ export async function startWhatsApp() {
     });
 
     sock.ev.on('messages.upsert', async ({ messages, type }: { messages: WAMessage[]; type: MessageUpsertType }) => {
+      waDebug.messagesUpsertEvents++;
+      waDebug.lastUpsertType = type ?? null;
+      waDebug.lastUpsertCount = messages?.length ?? 0;
+      waDebug.lastRemoteJids = (messages ?? []).map((m) => m.key?.remoteJid).filter(Boolean) as string[];
+      console.log('messages.upsert', type, messages?.length, waDebug.lastRemoteJids);
+
       if (type !== 'notify') return;
       for (const msg of messages) {
         if (msg.key.fromMe) continue;
         const from = msg.key.remoteJid;
         // One-to-one chats only: ignore groups, channels, status, broadcasts.
-        if (!isDirectChatJid(from)) continue;
+        if (!isDirectChatJid(from)) {
+          console.log('skipped (not direct):', from);
+          continue;
+        }
         const body = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
-        if (!body) continue;
+        if (!body) {
+          console.log('skipped (empty body):', from, Object.keys(msg.message ?? {}));
+          continue;
+        }
+        waDebug.lastInboundAt = new Date().toISOString();
+        waDebug.lastInboundFrom = from;
+        waDebug.lastInboundBody = body.slice(0, 200);
         try {
           const { handleIncomingMessage } = await import('./handler');
           await handleIncomingMessage(sock, from, body, msg);
+          waDebug.lastReplyError = null;
         } catch (e) {
+          waDebug.lastHandlerError = e instanceof Error ? e.message : String(e);
           console.error('handler error', e);
         }
       }
