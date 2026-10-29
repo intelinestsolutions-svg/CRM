@@ -13,10 +13,22 @@ async function sendDirectText(sock: any, jid: string, text: string) {
   await sock.sendMessage(target, { text });
 }
 
-async function askAgent(message: string, history: any[], knowledge: string) {
+function detectLanguage(text: string): 'ms' | 'en' {
+  const t = (text || '').toLowerCase();
+  const msMarkers = ['terima', 'saya', 'nak', 'boleh', 'awak', 'kami', 'anda', 'mohon', 'tolong', 'berapa', 'bila', 'mana', 'kenapa', 'sebab', 'dah', 'tak ', 'takpe', 'hai', 'assalam', 'encik', 'puan', 'bolehkah', 'macam', 'mana', 'sini', 'sana'];
+  const enMarkers = ['the ', ' is ', ' are ', ' you ', ' i ', ' we ', ' can ', ' please ', ' how ', ' what ', ' when ', ' where ', ' price ', ' cost ', ' thanks ', ' thank ', ' hello ', ' hi '];
+  let ms = 0;
+  for (const w of msMarkers) if (t.includes(w)) ms++;
+  let en = 0;
+  for (const w of enMarkers) if (t.includes(w)) en++;
+  return ms > en ? 'ms' : 'en';
+}
+
+async function askAgent(message: string, history: any[], knowledge: string, language: 'ms' | 'en') {
+  const langInstruction = 'Reply in the same language the customer used. If the customer writes in English, reply in English; if in Bahasa Melayu, reply in Bahasa Melayu. Do not mix languages.';
   const fullMessage = knowledge
-    ? `Knowledge base (use it to answer accurately and stay consistent with it):\\n${knowledge}\\n\\nCustomer message: ${message}`
-    : message;
+    ? `Knowledge base (use it to answer accurately and stay consistent with it):\\n${knowledge}\\n\\n${langInstruction}\\n\\nCustomer message: ${message}`
+    : `${langInstruction}\\n\\nCustomer message: ${message}`;
   try {
     const res = await fetch('https://ai.prostudio.my/api/chat.php', {
       method: 'POST',
@@ -28,6 +40,7 @@ async function askAgent(message: string, history: any[], knowledge: string) {
         message: fullMessage,
         history: Array.isArray(history) ? history : [],
         stream: false,
+        language,
         knowledge: knowledge ? knowledge.split('\\n') : undefined,
       }),
     });
@@ -142,9 +155,13 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
       content: m.body || '',
     }));
     const knowledge = formatKnowledge(await readKnowledgeEntries());
-    let reply = await askAgent(body, hist, knowledge);
+    const language = detectLanguage(body);
+    let reply = await askAgent(body, hist, knowledge, language);
     if (!reply) {
-      reply = `Terima kasih atas mesej anda: "${body}". Staf kami akan segera membantu anda!`;
+      reply =
+        language === 'ms'
+          ? `Terima kasih atas mesej anda: \"${body}\". Staf kami akan segera membantu anda!`
+          : `Thank you for your message: \"${body}\". Our team will get back to you shortly!`;
     }
     if (reply) {
       try {
