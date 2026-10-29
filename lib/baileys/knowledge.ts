@@ -21,7 +21,7 @@ const DEFAULT_ENTRIES: KnowledgeEntry[] = [
     id: 'default-studio-pro',
     title: 'About Studio Pro',
     content:
-      'Studio Pro is a web design studio based in Kota Kinabalu, Sabah, Malaysia. We specialise in clean, modern design paired with smart SEO - handling everything from wireframe to launch, all in-house. We work with clients across Malaysia and Singapore. Our core services include ux/ui & wireframing, web design & development, and SEO optimisation, plus ongoing care plans to keep your site fast, secure and visible on Google.',
+      'Studio Pro is a web design studio based in Kota Kinabalu, Sabah, Malaysia. We specialise in clean, modern design paired with smart SEO - handling everything from wireframe to launch, all in-house. We work with clients across Malaysia and Singapore. Our core services include UX/UI design + wireframes, web design & development, and SEO optimisation, plus ongoing care plans to keep your site fast, secure and visible on Google.',
     enabled: true,
     createdAt: new Date().toISOString(),
   },
