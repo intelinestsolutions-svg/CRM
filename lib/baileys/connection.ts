@@ -33,7 +33,7 @@ export async function startWhatsApp() {
 
   sock.ev.on('creds.update', saveCreds);
 
-  sock.ev.on('connection.update', async (update) => {
+  sock.ev.on('connection.update', async (update: any) => {
     const { connection, lastDisconnect, qr } = update;
     if (qr) {
       lastQr = qr;
@@ -63,7 +63,7 @@ export async function startWhatsApp() {
     }
   });
 
-  sock.ev.on('messages.upsert', async ({ messages, type }) => {
+  sock.ev.on('messages.upsert', async ({ messages, type }: any) => {
     if (type !== 'notify') return;
     for (const msg of messages) {
       if (msg.key.fromMe) continue;

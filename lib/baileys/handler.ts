@@ -115,7 +115,10 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
       role: m.direction === 'in' ? 'user' : 'assistant',
       content: m.body || '',
     }));
-    const reply = await askAgent(body, hist);
+    let reply = await askAgent(body, hist);
+    if (!reply) {
+      reply = `Terima kasih atas mesej anda: "${body}". Staf kami akan segera membantu anda!`;
+    }
     if (reply) {
       await sock.sendMessage(from, { text: reply });
       await prisma.message.create({
