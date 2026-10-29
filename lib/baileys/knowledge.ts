@@ -25,6 +25,38 @@ const DEFAULT_ENTRIES: KnowledgeEntry[] = [
     enabled: true,
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'default-services-pricing',
+    title: 'Services and pricing',
+    content:
+      'Website builds (one-time): Starter RM1,600 (up to 3 pages, ~2 weeks), Business RM3,800 (up to 8 pages, ~3-4 weeks, recommended), Pro/Commerce from RM7,500 (10+ pages, e-commerce/booking, ~5-8 weeks). All include custom design, mobile-first, on-page SEO, WhatsApp click-to-chat, domain + hosting free for year one, and analytics setup. Care Plans (monthly): Essential RM99/mo (hosting, backups, security, updates, 1 edit/mo), Growth RM249/mo (recommended, fair-use edits, monthly report, local SEO, Google Business Profile posts), Pro RM499/mo (edits as needed, 1 SEO article/mo, ads management, quarterly strategy call). Add-ons: logo/brand kit RM800-2,500, extra pages RM250/page, copywriting RM150/page, rush delivery +30%, migration RM300. Billing: 50% deposit to start, balance on launch. Care Plans billed monthly or annually (2 months free).',
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'default-process',
+    title: 'How a project runs',
+    content:
+      'Process: 1) Free quote - tell us your business and goal, fixed price reply within 1 working day. 2) Discovery - short call, then we recommend the right build and Care Plan. 3) Design & build - 50% deposit; you see the design early, we refine, then launch. 4) Handover & care - training, site goes live, Care Plan keeps it secure, updated and easy to find on Google. Most projects go live in 2-4 weeks. You own 100% of the code, design and content. No lock-in, no proprietary CMS.',
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'default-contact',
+    title: 'Contact and hours',
+    content:
+      'Contact: sales@prostudio.my, +60 13-869 9933 (WhatsApp), Facebook and Instagram @prostudio.my. Hours: Monday to Friday 9am-6pm Malaysia Time (GMT+8), replies within 1 working day. We serve Sabah/Kota Kinabalu small businesses, Malaysia-wide SMEs, and remote/English-language clients. We do not take enterprise projects, complex web apps, 24/7 SLA work, or price-only shoppers.',
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'default-faq',
+    title: 'Frequently asked questions',
+    content:
+      'FAQ: SEO is included in every tier (on-page SEO). Hosting and domain are free for year one; after that stay on a Care Plan (from RM99/mo) or renew at standard rates. Starter gets 1 revision round, Business 3, Pro revisions until sign-off. Business tier includes copy polish; Pro adds full copywriting. If something breaks on a Care Plan, we fix it (Essential within 3 business days, Growth 1 day, Pro 4 hours). You own 100% of the website. Starter ~2 weeks, Business ~3-4 weeks, Pro ~5-8 weeks.',
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export async function readKnowledgeEntries(): Promise<KnowledgeEntry[]> {
