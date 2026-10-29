@@ -3,12 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Inbox, LayoutDashboard, QrCode, Settings2 } from "lucide-react";
+import { BookOpen, Inbox, LayoutDashboard, QrCode, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
   { href: "/inbox", label: "Inbox", icon: Inbox },
+  { href: "/knowledge", label: "Knowledge", icon: BookOpen },
   { href: "/connect", label: "Connect", icon: QrCode },
   { href: "/settings", label: "Settings", icon: Settings2 },
 ];

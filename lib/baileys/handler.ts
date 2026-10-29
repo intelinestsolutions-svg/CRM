@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { isDirectChatJid, toDirectJid } from './guard';
 import { waDebug } from './debug';
+import { readKnowledgeEntries, formatKnowledge } from './knowledge';
 
 /**
  * The only path through which this app sends WhatsApp messages.
@@ -12,7 +13,10 @@ async function sendDirectText(sock: any, jid: string, text: string) {
   await sock.sendMessage(target, { text });
 }
 
-async function askAgent(message: string, history: any[]) {
+async function askAgent(message: string, history: any[], knowledge: string) {
+  const fullMessage = knowledge
+    ? `Knowledge base (use it to answer accurately and stay consistent with it):\\n${knowledge}\\n\\nCustomer message: ${message}`
+    : message;
   try {
     const res = await fetch('https://ai.prostudio.my/api/chat.php', {
       method: 'POST',
@@ -21,9 +25,10 @@ async function askAgent(message: string, history: any[]) {
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        message,
+        message: fullMessage,
         history: Array.isArray(history) ? history : [],
         stream: false,
+        knowledge: knowledge ? knowledge.split('\\n') : undefined,
       }),
     });
     const text = await res.text();
@@ -136,7 +141,8 @@ export async function handleIncomingMessage(sock: any, from: string, body: strin
       role: m.direction === 'in' ? 'user' : 'assistant',
       content: m.body || '',
     }));
-    let reply = await askAgent(body, hist);
+    const knowledge = formatKnowledge(await readKnowledgeEntries());
+    let reply = await askAgent(body, hist, knowledge);
     if (!reply) {
       reply = `Terima kasih atas mesej anda: "${body}". Staf kami akan segera membantu anda!`;
     }
