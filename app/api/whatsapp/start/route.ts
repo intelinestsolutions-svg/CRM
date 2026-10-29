@@ -1,12 +1,26 @@
 import { NextResponse } from 'next/server';
-import { startWhatsApp, getStatus } from '@/lib/baileys/connection';
+import { startWhatsApp, getStatus, resetSession } from '@/lib/baileys/connection';
 
 export async function GET() {
-  const status = getStatus();
-  return NextResponse.json(status);
+  return NextResponse.json(getStatus());
 }
 
 export async function POST() {
-  const result = await startWhatsApp();
-  return NextResponse.json(result);
+  try {
+    const result = await startWhatsApp();
+    return NextResponse.json(result);
+  } catch (e) {
+    return NextResponse.json(
+      {
+        ...getStatus(),
+        status: 'error',
+        error: e instanceof Error ? e.message : String(e),
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE() {
+  return NextResponse.json(resetSession());
 }
