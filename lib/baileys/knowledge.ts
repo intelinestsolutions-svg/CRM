@@ -57,6 +57,14 @@ const DEFAULT_ENTRIES: KnowledgeEntry[] = [
     enabled: true,
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'default-live-agent',
+    title: 'Live agent contact',
+    content:
+      'Live agent (human) WhatsApp number: +6016-320 3290 (https://wa.me/60163203290). When a customer asks to speak to a human, live agent, real person, or requests handover, reply with this number and the WhatsApp link, and tell them a human will assist them shortly. After handover the conversation switches to human mode and auto-replies stop.',
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export async function readKnowledgeEntries(): Promise<KnowledgeEntry[]> {
