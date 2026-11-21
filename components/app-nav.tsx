@@ -57,14 +57,6 @@ export function AppNav() {
             );
           })}
         </nav>
-
-        <div className="ml-auto hidden items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-xs text-muted-foreground sm:flex">
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-          </span>
-          AI agent online
-        </div>
       </div>
     </header>
   );
