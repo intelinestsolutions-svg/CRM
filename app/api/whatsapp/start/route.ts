@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { startWhatsApp, getStatus, resetSession } from '@/lib/baileys/connection';
+import { requireAdmin } from '@/lib/require-admin';
 
-export async function GET() {
+export async function GET(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   return NextResponse.json(getStatus());
 }
 
-export async function POST() {
+export async function POST(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   try {
     const result = await startWhatsApp();
     return NextResponse.json(result);
@@ -21,6 +28,9 @@ export async function POST() {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   return NextResponse.json(resetSession());
 }

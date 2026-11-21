@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/require-admin';
 
 export async function POST(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   const { conversationId, mode } = await req.json();
   if (!conversationId) return NextResponse.json({ error: 'missing' }, { status: 400 });
   const conv = await prisma.conversation.update({

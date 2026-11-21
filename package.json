@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "admin:hash": "node scripts/generate-admin-hash.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

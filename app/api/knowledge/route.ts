@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
 import { readKnowledgeEntries, writeKnowledgeEntries } from '@/lib/baileys/knowledge';
+import { requireAdmin } from '@/lib/require-admin';
 
-export async function GET() {
+export async function GET(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   const entries = await readKnowledgeEntries();
   return NextResponse.json({ entries });
 }
 
 export async function POST(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   const body = await req.json().catch(() => ({}));
 
   if (body?.id) {
@@ -41,6 +48,9 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const unauthorized = await requireAdmin(req);
+  if (unauthorized) return unauthorized;
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'missing id' }, { status: 400 });
